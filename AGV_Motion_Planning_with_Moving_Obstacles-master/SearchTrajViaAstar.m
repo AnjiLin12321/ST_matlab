@@ -1,7 +1,10 @@
 function [x, y] = SearchTrajViaAstar()
 global params_
+
+%start end point 转index
 start_ind = ConvertConfigToIndex(params_.x0, params_.y0, 0);
 goal_ind = ConvertConfigToIndex(params_.xf, params_.yf, params_.tf_max);
+
 ind_vec = SearchViaAStar(start_ind, goal_ind);
 x = params_.x_min + (ind_vec(:,1)' - 1) .* params_.dx;
 y = params_.y_min + (ind_vec(:,2)' - 1) .* params_.dy;
@@ -17,24 +20,26 @@ end
 
 function ind_vec = SearchViaAStar(start_ind, goal_ind)
 global params_ grid_space
-% cell 用于创建单元格数组（cell array）。单元格数组是一种特殊类型的数组，它可以包含不同大小和类型的数据。
-% 每个元素（或称为单元格）可以包含任意类型的数据，包括数值、字符、逻辑值、结构体、其他单元格数组等。
+% cell 用于创建单元格数组(cell array) 。单元格数组是一种特殊类型的数组,它可以包含不同大小和类型的数据。
+% 每个元素(或称为单元格) 可以包含任意类型的数据,包括数值、字符、逻辑值、结构体、其他单元格数组等。
 % 三维
 grid_space = cell(params_.NX, params_.NY, params_.NT);
+
 init_node.id = start_ind;
-init_node.g = 0;
+init_node.g = 0;  //cost from start 
 init_node.h = sum(abs(start_ind(1:2) - goal_ind(1:2))) + params_.weight_for_time * abs(start_ind(3) - goal_ind(3));
 init_node.f = init_node.g + init_node.h;
 init_node.is_in_openlist = 1;
 init_node.is_in_closedlist = 0;
 init_node.parent_id = [-999 -999 -999];
 init_node.parent_operation = [0 0 0];
+
 global openlist openlist_f
 openlist = init_node.id;
 openlist_f = init_node.f;
 
 grid_space{init_node.id(1), init_node.id(2), init_node.id(3)} = init_node;
-% 生长方向 x y t （-1，-1，1）（-1，0，1） （-1，1，1）  （0，-1，1）（0，0，1） （0，1，1）  （1，-1，1）（1，0，1） （1，1，1）
+% 生长方向 x y t (-1,-1,1) (-1,0,1)  (-1,1,1)   (0,-1,1) (0,0,1)  (0,1,1)   (1,-1,1) (1,0,1)  (1,1,1) 
 % 步长 cost
 [expansion_pattern, expansion_length] = GeneratePattern();
 

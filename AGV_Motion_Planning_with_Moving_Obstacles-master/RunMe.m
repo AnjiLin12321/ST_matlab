@@ -13,20 +13,30 @@
 clear all; close all; clc;
 
 global params_
+%障碍物信息 
 params_.radius = 2;
+params_.Nobs = 5;
+params_.Nfe = params_.NT * 3;  %80*3
+params_.obs = GenerateDynamicObstacles();  % 5个障碍物start和end points 随机生成
+
+%地图信息 地图大小
 params_.x_min = -20;
 params_.x_max = 20;
 params_.y_min = -20;
 params_.y_max = 20;
 params_.x_scale = params_.x_max - params_.x_min;
 params_.y_scale = params_.y_max - params_.y_min;
-params_.tf_max = 40;
-params_.NT = 80;
-params_.dt = params_.tf_max / (params_.NT - 1);
 params_.NX = 20;
 params_.NY = 20;
 params_.dx = params_.x_scale / (params_.NX - 1);
 params_.dy = params_.y_scale / (params_.NY - 1);
+
+%预测步0.5s
+params_.tf_max = 40;
+params_.NT = 80;
+params_.dt = params_.tf_max / (params_.NT - 1);
+
+%求解参数
 params_.weight_for_time = 100.0;
 params_.Nring = 1;
 params_.max_iter = 2000;
@@ -37,9 +47,7 @@ params_.y0 = params_.y_min + params_.radius + (params_.y_scale - 2 * params_.rad
 params_.xf = params_.x_min + params_.radius + (params_.x_scale - 2 * params_.radius) * rand;
 params_.yf = params_.y_min + params_.radius + (params_.y_scale - 2 * params_.radius) * rand;
 
-params_.Nobs = 5;
-params_.Nfe = params_.NT * 3;
-params_.obs = GenerateDynamicObstacles();
+
 
 [x, y] = SearchTrajViaAstar();
 if (length(x) < params_.NT)
